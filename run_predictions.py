@@ -105,15 +105,15 @@ def detect_red_light_mf(I):
 
 # Note that you are not allowed to use test data for training.
 # set the path to the downloaded data:
-data_path = '../data/RedLights2011_Medium'
+data_path = './data/RedLights2011_Medium'
 
 # load splits: 
-split_path = '../data/hw02_splits'
+split_path = './data/hw02_splits'
 file_names_train = np.load(os.path.join(split_path,'file_names_train.npy'))
-file_names_test = np.load(os.path.join(split_Path,'file_names_test.npy'))
+file_names_test = np.load(os.path.join(split_path,'file_names_test.npy'))
 
 # set a path for saving predictions:
-preds_path = '../data/hw02_preds'
+preds_path = './data/hw02_preds'
 os.makedirs(preds_path, exist_ok=True) # create directory if needed
 
 # Set this parameter to True when you're done with algorithm development:
