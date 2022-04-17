@@ -3,19 +3,37 @@ import numpy as np
 import json
 from PIL import Image
 
-def compute_convolution(I, T, stride=None):
+def compute_convolution(I, T, stride=None,padding=None):
     '''
     This function takes an image <I> and a template <T> (both numpy arrays) 
     and returns a heatmap where each grid represents the output produced by 
     convolution at each location. You can add optional parameters (e.g. stride, 
     window_size, padding) to create additional functionality. 
     '''
+    
+    # I assume that the template has the template is also indexed by channels.
     (n_rows,n_cols,n_channels) = np.shape(I)
+    (t_rows, t_cols, t_channels) = np.shape(T)
 
     '''
-    BEGIN YOUR CODE
+    BEGIN YOUR CODE.
     '''
-    heatmap = np.random.random((n_rows, n_cols))
+    if padding == None:
+        # Need to think about what the dimension will be. Must subtract
+        # some function of the template shape.
+        heatmap = np.empty((n_rows - t_rows + 1, n_cols - t_cols + 1))
+        it = np.nditer(heatmap, flags=['multi_index'], op_flags=['writeonly'], order='C')
+        for x in it:
+            sum = 0.0
+            i = it.multi_index[0]
+            j = it.multi_index[1]
+            t_it = np.nditer(T, flags=['multi_index'], order='C')
+            for t in t_it:
+                t_i = t_it.multi_index[0]
+                t_j = t_it.multi_index[1]
+                channel = t_it.multi_index[2]
+                sum += I[i+t_i][j+t_j][channel]*t
+            x[...] = sum
 
     '''
     END YOUR CODE
