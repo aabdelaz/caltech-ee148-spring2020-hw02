@@ -19,21 +19,24 @@ def compute_convolution(I, T, stride=None,padding=None):
     BEGIN YOUR CODE.
     '''
     if padding == None:
-        # Need to think about what the dimension will be. Must subtract
-        # some function of the template shape.
-        heatmap = np.empty((n_rows - t_rows + 1, n_cols - t_cols + 1))
+        heatmap = np.zeros((n_rows, n_cols))
         it = np.nditer(heatmap, flags=['multi_index'], op_flags=['writeonly'], order='C')
         for x in it:
             sum = 0.0
+            norm = 0.0
             i = it.multi_index[0]
             j = it.multi_index[1]
+            if i >= n_rows - t_rows + 1 or j >= n_cols - t_cols + 1:
+                continue;
             t_it = np.nditer(T, flags=['multi_index'], order='C')
             for t in t_it:
                 t_i = t_it.multi_index[0]
                 t_j = t_it.multi_index[1]
                 channel = t_it.multi_index[2]
-                sum += I[i+t_i][j+t_j][channel]*t
-            x[...] = sum
+                pixel = I[i+t_i][j+t_j][channel]
+                norm += pixel*pixel
+                sum += pixel*t
+            x[...] = sum/np.sqrt(norm)
 
     '''
     END YOUR CODE
@@ -53,28 +56,19 @@ def predict_boxes(heatmap):
     '''
     BEGIN YOUR CODE
     '''
-    
-    '''
-    As an example, here's code that generates between 1 and 5 random boxes
-    of fixed size and returns the results in the proper format.
-    '''
-
     box_height = 8
     box_width = 6
-
-    num_boxes = np.random.randint(1,5)
-
-    for i in range(num_boxes):
-        (n_rows,n_cols,n_channels) = np.shape(I)
-
-        tl_row = np.random.randint(n_rows - box_height)
-        tl_col = np.random.randint(n_cols - box_width)
-        br_row = tl_row + box_height
-        br_col = tl_col + box_width
-
-        score = np.random.random()
-
-        output.append([tl_row,tl_col,br_row,br_col, score])
+    
+    threshold = 0.5
+    it = np.nditer(heatmap, flags=['multi_index'])
+    for x in it:
+        if x > threshold:
+            tl_row = it.multi_index[0]
+            tl_col = it.multi_index[1]
+            br_row = tl_row + box_height
+            br_col = tl_col + box_width           
+            output.append([tl_row,tl_col,br_row,br_col, x])
+        
 
     '''
     END YOUR CODE
