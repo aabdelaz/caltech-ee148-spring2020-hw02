@@ -45,7 +45,7 @@ def compute_convolution(I, T, stride=None,padding=None):
     return heatmap
 
 
-def predict_boxes(heatmap):
+def predict_boxes(heatmap, template_shape):
     '''
     This function takes heatmap and returns the bounding boxes and associated
     confidence scores.
@@ -56,8 +56,8 @@ def predict_boxes(heatmap):
     '''
     BEGIN YOUR CODE
     '''
-    box_height = 8
-    box_width = 6
+    box_height = template_shape[0]
+    box_width = template_shape[1]
     
     threshold = 0.5
     it = np.nditer(heatmap, flags=['multi_index'])
@@ -96,14 +96,12 @@ def detect_red_light_mf(I):
     '''
     BEGIN YOUR CODE
     '''
-    template_height = 8
-    template_width = 6
-
-    # You may use multiple stages and combine the results
-    T = np.random.random((template_height, template_width))
+    template_path = './data/teamplate/template.jpg'
+    T = Image.open(template_path)
+    T = np.asarray(T)
 
     heatmap = compute_convolution(I, T)
-    output = predict_boxes(heatmap)
+    output = predict_boxes(heatmap, np.shape(T))
 
     '''
     END YOUR CODE
