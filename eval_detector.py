@@ -8,8 +8,8 @@ def point_inside_box(point, box):
     y_min = box[1]
     y_max = box[3]
     
-    if point[0] < x_max and point[0] > x_min\
-        and point[1] > y_min and point[1] < y_max:
+    if point[0] <= x_max and point[0] >= x_min\
+        and point[1] >= y_min and point[1] <= y_max:
             return True
     return False            
 
@@ -57,13 +57,13 @@ def compute_iou(box_1, box_2):
     '''
     if not box_intersects_box(box_1, box_2):
         return 0.0
-    if box_inside_box(box_1, box_2):
-        iou =  area(box_1)/area(box_2)
-    if box_inside_box(box_2,box_1):
-        iou = area(box_2)/area(box_1)
     
     c_bools = corners_inside(box_1, box_2)
-    if sum(c_bools) == 1:
+    if box_inside_box(box_1, box_2):
+        iou =  area(box_1)/area(box_2)
+    elif box_inside_box(box_2,box_1):
+        iou = area(box_2)/area(box_1)
+    elif sum(c_bools) == 1:
         c1 = corners(box_1)
         c2 = corners(box_2)
         # Figure out which corner
@@ -79,29 +79,29 @@ def compute_iou(box_1, box_2):
             diff = [a - b for a, b in zip(c1[3], c2[0])]
         I = abs(diff[0]*diff[1])
         U = area(box_1) + area(box_2) - I
-        iou = I/U
-    
+        iou = I/U   
     # At this point, we must have exactly 2 points of one box inside the other
     # If box 2 has two corners in box 1, swap the names so that the subsequent
     # code (which assumes that box_1 has 2 points inside box 2) still works.
-    if sum(c_bools) == 0:
-        c_bools = corners_inside(box_2, box_1)
-        tmp = box_1;
-        box_1 = box_2
-        box_2 = tmp
     else:
-        assert(sum(c_bools) == 2)
-    
-    if c_bools[0] and c_bools[1]:
-        I = abs((box_1[2] - box_1[0])*(box_2[3] - box_1[1]))
-    elif c_bools[1] and c_bools[2]: 
-        I = abs((box_1[3] - box_1[1])*(box_2[0] - box_1[2]))
-    elif c_bools[2] and c_bools[3]:
-        I = abs((box_1[2] - box_1[0])*(box_2[1] - box_1[3]))
-    else:
-        I = abs((box_1[3] - box_1[1])*(box_2[2] - box_1[0]))
-    U = area(box_1) + area(box_2) - I
-    iou = I/U
+        if sum(c_bools) == 0:
+            c_bools = corners_inside(box_2, box_1)
+            tmp = box_1;
+            box_1 = box_2
+            box_2 = tmp
+        else:
+            assert(sum(c_bools) == 2)
+        
+        if c_bools[0] and c_bools[1]:
+            I = abs((box_1[2] - box_1[0])*(box_2[3] - box_1[1]))
+        elif c_bools[1] and c_bools[3]: 
+            I = abs((box_1[3] - box_1[1])*(box_2[0] - box_1[2]))
+        elif c_bools[2] and c_bools[3]:
+            I = abs((box_1[2] - box_1[0])*(box_2[1] - box_1[3]))
+        else:
+            I = abs((box_1[3] - box_1[1])*(box_2[2] - box_1[0]))
+        U = area(box_1) + area(box_2) - I
+        iou = I/U
     
     assert (iou >= 0) and (iou <= 1.0)
     return iou
