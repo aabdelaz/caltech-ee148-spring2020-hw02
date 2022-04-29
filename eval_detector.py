@@ -175,7 +175,6 @@ if done_tweaking:
 # For a fixed IoU threshold, vary the confidence thresholds.
 # The code below gives an example on the training set for one IoU threshold. 
 
-
 confidence_thrs = np.sort(np.array([preds_train[fname][4] for fname in preds_train],dtype=float)) # using (ascending) list of confidence scores as thresholds
 tp_train = np.zeros(len(confidence_thrs))
 fp_train = np.zeros(len(confidence_thrs))
